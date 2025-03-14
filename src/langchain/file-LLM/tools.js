@@ -2,27 +2,77 @@ import { Tool } from "@langchain/core/tools";
 import fs from "fs";
 import path from "path";
 
-class MultiplyTool extends Tool {
-  name = "multiply";
-  description = "计算两个数的乘积";
+/**
+ * 读取指定文件的内容
+ * @param {string} filePath - 文件的路径
+ * @returns {Promise<string>} - 文件内容
+ */
+class ReadFile extends Tool {
+  name = "read_file";
+  description = "读取指定路径的文件内容";
 
   async _call(input) {
-    const { x, y } = JSON.parse(input);
-    console.log("🚀 ~ MultiplyTool ~ _call ~ x, y:", x, y);
-    return (x * y).toString();
+    const { path: filePath } = JSON.parse(input);
+    try {
+      const absolutePath = path.resolve(filePath); // 将路径解析为绝对路径
+      const content = await fs.promises.readFile(absolutePath, "utf-8");
+      return content;
+    } catch (error) {
+      throw new Error(`读取文件失败: ${error.message}`);
+    }
   }
 }
 
-class AddTool extends Tool {
-  name = "add";
-  description = "计算两个数的和";
+/**
+ * 创建文件
+ * @param {string} filePath - 文件的路径
+ * @param {string} content - 文件内容
+ * @returns {Promise<void>}
+ */
+class CreateFile extends Tool {
+  name = "create_file";
+  description = "新建文件";
 
   async _call(input) {
-    const { x, y } = JSON.parse(input);
-    return (x + y).toString();
+    const { filePath, content = "" } = JSON.parse(input);
+    try {
+      const absolutePath = path.resolve(filePath); // 将路径解析为绝对路径
+      await fs.promises.writeFile(absolutePath, content, "utf-8");
+      console.log("文件创建成功:", absolutePath);
+    } catch (error) {
+      throw new Error(`创建文件失败: ${error.message}`);
+    }
   }
 }
 
+/**
+ * 往文件里写内容
+ * @param {string} filePath - 文件的路径
+ * @param {string} content - 要写入的内容
+ * @param {boolean} append - 是否追加内容（默认覆盖）
+ * @returns {Promise<void>}
+ */
+class WriteFile extends Tool {
+  name = "write_file";
+  description = "写入文件内容";
+
+  async _call(input) {
+    const { filePath, content, append = false } = JSON.parse(input);
+    try {
+      const absolutePath = path.resolve(filePath); // 将路径解析为绝对路径
+      const flag = append ? "a" : "w"; // 追加模式为 'a'，覆盖模式为 'w'
+      await fs.promises.writeFile(absolutePath, content, {
+        encoding: "utf-8",
+        flag,
+      });
+      console.log("文件写入成功:", absolutePath);
+    } catch (error) {
+      throw new Error(`写入文件失败: ${error.message}`);
+    }
+  }
+}
+
+/** 列出目录结构 */
 class DirectionStructure extends Tool {
   name = "directionStructure";
   description = "获取指定目录或当前目录下的文件目录结构";
@@ -34,7 +84,7 @@ class DirectionStructure extends Tool {
       const structure = {};
       const items = fs.readdirSync(currentPath);
       for (const item of items) {
-        if (item === "node_modules") continue;
+        if (item === "node_modules" || item === ".git") continue;
         const itemPath = path.join(currentPath, item);
         const stat = fs.statSync(itemPath);
         if (stat.isDirectory()) {
@@ -68,25 +118,10 @@ class DirectionStructure extends Tool {
   }
 }
 
-class BirthdayTool extends Tool {
-  name = "birthday";
-  description = "获取指定人的生日";
-
-  async _call(input) {
-    console.log("🚀 ~ BirthdayTool ~ _call ~ input:", input);
-    const { person } = JSON.parse(input);
-    switch (person) {
-      case "Anton":
-        return `Anton的生日是2004年5月19日`;
-    }
-    return "没有这个人生日的记录";
-  }
-}
-
 // 创建工具实例
 export default [
-  new MultiplyTool(),
-  new AddTool(),
+  new ReadFile(),
+  new CreateFile(),
+  new WriteFile(),
   new DirectionStructure(),
-  new BirthdayTool(),
 ];
