@@ -22,6 +22,8 @@
 
 使用该服务可以让大模型拥有启动无头浏览器的能力，能实现模拟网页操作、截图、爬虫等工作，可拓展应用到前端UI自动化测试。
 
+![image-20250315025240909](https://image.antoncook.xyz/picList/2025/03/465701958573c4b02d340a8fc0dee7c2.webp)
+
 ### tensorflow
 
 使用tensorflow在线进行模型训练，模型推理
