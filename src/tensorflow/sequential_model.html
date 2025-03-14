@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TensorFlow.js Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  </head>
+  <body>
+    <h1>TensorFlow.js Example</h1>
+    <p>Simple linear regression using TensorFlow.js.</p>
+    <canvas id="plotCanvas" width="600" height="400"></canvas>
+    <script>
+      // Generate some data for a simple linear regression problem
+      const numPoints = 100;
+      const xs = tf.tensor(tf.linspace(0, 1, numPoints));
+      const ys = xs.mul(tf.scalar(2)).add(tf.randomNormal([numPoints], 0, 0.1));
+
+      // Define a simple linear model
+      function createModel() {
+        const model = tf.sequential(); // 创建一个顺序模型
+        model.add(tf.layers.dense({ units: 1, inputShape: [1] })); // 添加一个具有1个单元和输入形状为[1]的全连接层
+        return model; // 返回模型
+      }
+
+      const model = createModel();
+      model.compile({ optimizer: "sgd", loss: "meanSquaredError" });
+
+      // Train the model using the data
+      async function trainModel(model, xs, ys) {
+        await model.fit(xs, ys, { epochs: 100 });
+      }
+
+      // Draw the data points and the regression line on a canvas
+      function plotData() {
+        const ctx = document.getElementById("plotCanvas").getContext("2d");
+        xs.print();
+        ys.print();
+
+        // Clear the canvas
+        ctx.clearRect(0, 0, 600, 400);
+
+        // Draw points
+        ctx.beginPath();
+        ctx.fillStyle = "blue";
+        xs.forEach((x, i) => {
+          const y = model.predict(tf.tensor([x]))[0];
+          ctx.fillRect((x * 600) / numPoints, (-y * 400) / 2 + 200, 5, 5);
+        });
+
+        // Draw regression line
+        ctx.beginPath();
+        ctx.strokeStyle = "red";
+        (xs.min().dataSync()[0] * 600) / numPoints;
+        (xs.max().dataSync()[0] * 600) / numPoints;
+        const yMin = model.predict(xs.min())[0].dataSync()[0];
+        const yMax = model.predict(xs.max())[0].dataSync()[0];
+        ctx.moveTo(
+          (xs.min().dataSync()[0] * 600) / numPoints,
+          (-yMin * 400) / 2 + 200
+        );
+        ctx.lineTo(
+          (xs.max().dataSync()[0] * 600) / numPoints,
+          (-yMax * 400) / 2 + 200
+        );
+        ctx.stroke();
+      }
+
+      // Train and plot the model when the page loads
+      window.onload = () => {
+        trainModel(model, xs, ys).then(() => {
+          console.log("Model trained.");
+          plotData();
+        });
+      };
+    </script>
+  </body>
+</html>

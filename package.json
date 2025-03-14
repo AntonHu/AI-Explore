@@ -1,0 +1,33 @@
+{
+  "name": "AI-Explore",
+  "version": "1.0.0",
+  "description": "记录AI探索过程",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.4.1",
+  "dependencies": {
+    "@ffmpeg/core": "^0.12.10",
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@langchain/community": "^0.3.35",
+    "@langchain/core": "^0.3.42",
+    "@langchain/ollama": "^0.2.0",
+    "@modelcontextprotocol/sdk": "^1.7.0",
+    "ansi-escapes": "^7.0.0",
+    "axios": "^1.8.2",
+    "chalk": "^5.4.1",
+    "langchain": "^0.3.19",
+    "langchain-core": "^0.0.4",
+    "ollama": "^0.5.14",
+    "puppeteer": "^24.4.0"
+  },
+  "devDependencies": {
+    "shx": "^0.3.4",
+    "typescript": "^5.8.2"
+  }
+}
